@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Portfolio Pro</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0b0d; color: white; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        .balance-card { text-align: center; padding: 40px 0; background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%); border-radius: 20px; margin-bottom: 20px; border: 1px solid #333; }
+        .total-label { color: #888; font-size: 0.9rem; }
+        .total-amount { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+        .asset-row { display: flex; justify-content: space-between; padding: 15px; background: #1a1b1f; border-radius: 12px; margin-bottom: 10px; }
+        .history-section { margin-top: 30px; }
+        .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        .tx-sent { color: #ff4d4d; }
+        .tx-received { color: #00ffa3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="balance-card">
+            <div class="total-label">Total Portfolio Value</div>
+            <div class="total-amount">$1,700,000.00</div>
+        </div>
+
+        <h3>Assets</h3>
+        <div class="asset-row"><span>Bitcoin (BTC)</span> <strong>$1,000,000</strong></div>
+        <div class="asset-row"><span>Tether (USDT)</span> <strong>$500,000</strong></div>
+        <div class="asset-row"><span>Ethereum (ETH)</span> <strong>$200,000</strong></div>
+
+        <div class="history-section">
+            <h3>Activity (June 2025 - Present)</h3>
+            <div class="tx-item">
+                <span>Received BTC <br><small>Jan 24, 2026</small></span>
+                <span class="tx-received">+0.50 BTC</span>
+            </div>
+            <div class="tx-item">
+                <span>Sent ETH <br><small>Dec 12, 2025</small></span>
+                <span class="tx-sent">-2.15 ETH</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
