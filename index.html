@@ -3,154 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet | Professional Dashboard</title>
+    <title>Trustcoin | Professional Wallet</title>
     <style>
-        :root { --bg: #ffffff; --text: #000000; --sub: #6e6e73; --border: #f2f2f7; --blue: #007aff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        :root { --bg: #ffffff; --text: #000000; --sub: #6e6e73; --border: #f2f2f7; --blue: #007aff; --green: #34c759; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
         
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .balance-container { text-align: center; padding: 20px 0; }
-        .main-balance { font-size: 3rem; font-weight: 700; margin-bottom: 30px; }
+        /* Auth Screen */
+        #auth-overlay { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; padding: 40px 20px; }
+        .auth-box { max-width: 400px; margin: auto; width: 100%; text-align: center; }
+        .tab-btn { padding: 10px 20px; border: none; background: none; font-weight: bold; cursor: pointer; color: var(--sub); }
+        .tab-btn.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
+        .seed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .seed-word { background: #f2f2f7; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #555; }
 
+        /* Main UI */
+        .container { display: none; padding-bottom: 80px; }
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .balance-section { text-align: center; padding: 40px 0; }
+        .main-val { font-size: 3rem; font-weight: 700; }
+        
         /* Action Buttons */
-        .actions { display: flex; justify-content: space-around; padding: 0 20px; margin-bottom: 30px; }
-        .action-item { text-align: center; cursor: pointer; }
-        .action-icon { width: 55px; height: 55px; background: #f2f2f7; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 8px; transition: 0.2s; }
-        .action-icon:hover { background: #e5e5ea; }
-        .action-label { font-size: 0.85rem; font-weight: 500; color: var(--sub); }
+        .actions { display: flex; justify-content: space-around; padding: 20px; }
+        .act-item { text-align: center; cursor: pointer; width: 20%; }
+        .act-icon { height: 50px; width: 50px; background: #f2f2f7; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 1.2rem; }
+        
+        /* Sheets (Modals) */
+        .sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
+        .sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 30px 20px; box-sizing: border-box; }
+        .option-card { display: flex; align-items: center; padding: 15px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+        .qr-placeholder { width: 180px; height: 180px; background: #eee; margin: 20px auto; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
 
-        /* Tabs */
-        .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; margin-bottom: 10px; }
-        .tab { padding: 12px 15px; font-weight: 600; color: var(--sub); cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--text); border-bottom: 2px solid var(--text); }
-
-        /* Asset/History List */
-        .list-container { padding: 0 20px; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
-        .item-left { display: flex; align-items: center; }
-        .coin-icon { width: 40px; height: 40px; border-radius: 50%; background: #eee; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .coin-info div:first-child { font-weight: 600; font-size: 1rem; }
-        .coin-info div:last-child { font-size: 0.85rem; color: var(--sub); }
-        .item-right { text-align: right; }
-        .item-val { font-weight: 600; }
-        .item-pct { font-size: 0.8rem; font-weight: 500; }
-        .up { color: #34c759; }
-        .down { color: #ff3b30; }
-
-        /* Send Modal */
-        #send-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; }
-        .modal-sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 25px; box-sizing: border-box; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--border); border-radius: 12px; background: #f9f9f9; font-size: 1rem; }
-        .btn-send { background: #000; color: #fff; width: 100%; padding: 18px; border-radius: 15px; font-weight: 700; border: none; margin-top: 10px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; }
+        .btn-primary { background: black; color: white; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; border: none; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="font-weight: 700; font-size: 1.2rem;">Wallet</div>
-        <div style="font-size: 1.5rem;">⚙️</div>
-    </div>
-
-    <div class="balance-container">
-        <div class="main-balance" id="total-val">$1,825,000.00</div>
-    </div>
-
-    <div class="actions">
-        <div class="action-item"><div class="action-icon">↓</div><div class="action-label">Buy</div></div>
-        <div class="action-item"><div class="action-icon">⇄</div><div class="action-label">Trade</div></div>
-        <div class="action-item" onclick="toggleModal(true)"><div class="action-icon">↗</div><div class="action-label">Send</div></div>
-        <div class="action-item"><div class="action-icon">⇆</div><div class="action-label">Request</div></div>
-    </div>
-
-    <div class="tabs">
-        <div class="tab active" onclick="showSection('coins')">Coins</div>
-        <div class="tab" onclick="showSection('activity')">Activity</div>
-    </div>
-
-    <div class="list-container" id="content-list">
-        <div id="coins-section">
-            <div class="item">
-                <div class="item-left"><div class="coin-icon" style="background: #f7931a; color: white;">₿</div><div class="coin-info"><div>Bitcoin</div><div>BTC</div></div></div>
-                <div class="item-right"><div class="item-val" id="val-btc">$1,000,000.00</div><div class="item-pct up">+2.45%</div></div>
+    <div id="auth-overlay">
+        <div class="auth-box">
+            <h2 style="font-size: 1.8rem; margin-bottom: 5px;">Welcome Back</h2>
+            <p style="color: var(--sub); margin-bottom: 30px;">Choose login method</p>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="tab-btn active" onclick="switchAuth('email')">Email</button>
+                <button class="tab-btn" onclick="switchAuth('seed')">Seed Phrase</button>
             </div>
-            <div class="item">
-                <div class="item-left"><div class="coin-icon" style="background: #627eea; color: white;">Ξ</div><div class="coin-info"><div>Ethereum</div><div>ETH</div></div></div>
-                <div class="item-right"><div class="item-val" id="val-eth">$200,000.00</div><div class="item-pct up">+1.12%</div></div>
+
+            <div id="email-form">
+                <input type="email" id="login-email" placeholder="albertschneider183@gmail.com">
+                <input type="password" id="login-pass" placeholder="Password">
             </div>
-            <div class="item">
-                <div class="item-left"><div class="coin-icon" style="background: #26a17b; color: white;">₮</div><div class="coin-info"><div>Tether</div><div>USDT</div></div></div>
-                <div class="item-right"><div class="item-val" id="val-usdt">$500,000.00</div><div class="item-pct">Stable</div></div>
+
+            <div id="seed-form" style="display:none;">
+                <div class="seed-grid">
+                    <div class="seed-word">1. apple</div><div class="seed-word">2. mountain</div>
+                    <div class="seed-word">3. ocean</div><div class="seed-word">4. clock</div>
+                    <div class="seed-word">5. bright</div><div class="seed-word">6. forest</div>
+                    <div class="seed-word">7. eagle</div><div class="seed-word">8. silver</div>
+                    <div class="seed-word">9. planet</div><div class="seed-word">10. winter</div>
+                    <div class="seed-word">11. bridge</div><div class="seed-word">12. sunset</div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--red);">Never share your 12 words with anyone.</p>
             </div>
-            <div class="item">
-                <div class="item-left"><div class="coin-icon" style="background: #14f195; color: black;">S</div><div class="coin-info"><div>Solana</div><div>SOL</div></div></div>
-                <div class="item-right"><div class="item-val" id="val-sol">$125,000.00</div><div class="item-pct down">-0.89%</div></div>
+
+            <button class="btn-primary" onclick="handleLogin()">Unlock Wallet</button>
+        </div>
+    </div>
+
+    <div class="container" id="main-ui">
+        <div class="header">
+            <span style="font-weight: 700;">My Trust Wallet</span>
+            <span>🔔</span>
+        </div>
+
+        <div class="balance-section">
+            <div style="font-size: 0.8rem; color: var(--sub); margin-bottom: 5px;">TOTAL BALANCE</div>
+            <div class="main-val">$1,825,000.00</div>
+        </div>
+
+        <div class="actions">
+            <div class="act-item" onclick="showSheet('buy-sheet')"><div class="act-icon">💳</div><div style="font-size:0.75rem">Buy</div></div>
+            <div class="act-item" onclick="showSheet('receive-sheet')"><div class="act-icon">↓</div><div style="font-size:0.75rem">Receive</div></div>
+            <div class="act-item" onclick="alert('Swap feature coming soon')"><div class="act-icon">⇄</div><div style="font-size:0.75rem">Swap</div></div>
+            <div class="act-item" onclick="alert('Send feature enabled')"><div class="act-icon">↗</div><div style="font-size:0.75rem">Send</div></div>
+        </div>
+
+        <div style="padding: 20px;">
+            <h3 style="margin-bottom: 15px;">Assets</h3>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>Bitcoin (BTC)</span><strong>$1,000,000</strong>
+            </div>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>Ethereum (ETH)</span><strong>$200,000</strong>
             </div>
         </div>
-        
-        <div id="activity-section" style="display:none;"></div>
     </div>
 
-    <div id="send-modal" onclick="toggleModal(false)">
-        <div class="modal-sheet" onclick="event.stopPropagation()">
-            <h3 style="margin-top:0">Send Crypto</h3>
-            <select id="asset-type">
-                <option value="btc">Bitcoin (BTC)</option>
-                <option value="eth">Ethereum (ETH)</option>
-                <option value="usdt">Tether (USDT)</option>
-                <option value="sol">Solana (SOL)</option>
-            </select>
-            <input type="text" placeholder="To: Wallet Address">
-            <input type="number" id="send-amt" placeholder="Amount in USD">
-            <button class="btn-send" onclick="confirmSend()">Send Now</button>
+    <div id="buy-sheet" class="sheet-overlay" onclick="closeSheets()">
+        <div class="sheet" onclick="event.stopPropagation()">
+            <h3>Buy Crypto</h3>
+            <div class="option-card"><span>🏦 Bank Transfer (ACH)</span></div>
+            <div class="option-card"><span>💳 Debit / Credit Card</span></div>
+            <div class="option-card"><span> Apple Pay</span></div>
+            <button class="btn-primary" onclick="closeSheets()">Continue</button>
+        </div>
+    </div>
+
+    <div id="receive-sheet" class="sheet-overlay" onclick="closeSheets()">
+        <div class="sheet" onclick="event.stopPropagation()" style="text-align: center;">
+            <h3>Your BTC Address</h3>
+            <div class="qr-placeholder">[ QR CODE ]</div>
+            <code style="background: #eee; padding: 10px; border-radius: 5px; font-size: 0.8rem;">1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</code>
+            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('Address Copied!')">Copy Address</button>
         </div>
     </div>
 
     <script>
-        let balances = { btc: 1000000, eth: 200000, usdt: 500000, sol: 125000 };
-
-        function toggleModal(show) { document.getElementById('send-modal').style.display = show ? 'flex' : 'none'; }
-
-        function confirmSend() {
-            const asset = document.getElementById('asset-type').value;
-            const amt = parseFloat(document.getElementById('send-amt').value);
-            if(amt > 0 && balances[asset] >= amt) {
-                balances[asset] -= amt;
-                document.getElementById(`val-${asset}`).innerText = `$${balances[asset].toLocaleString()}.00`;
-                const total = Object.values(balances).reduce((a, b) => a + b, 0);
-                document.getElementById('total-val').innerText = `$${total.toLocaleString()}.00`;
-                alert(`Successfully sent $${amt} ${asset.toUpperCase()}`);
-                toggleModal(false);
-            } else {
-                alert("Insufficient balance.");
-            }
-        }
-
-        function showSection(section) {
-            document.getElementById('coins-section').style.display = section === 'coins' ? 'block' : 'none';
-            document.getElementById('activity-section').style.display = section === 'activity' ? 'block' : 'none';
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        function switchAuth(type) {
+            document.getElementById('email-form').style.display = type === 'email' ? 'block' : 'none';
+            document.getElementById('seed-form').style.display = type === 'seed' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            if(section === 'activity') generateHistory();
         }
 
-        function generateHistory() {
-            const container = document.getElementById('activity-section');
-            container.innerHTML = '';
-            for(let i=0; i<30; i++) {
-                const isSent = Math.random() > 0.5;
-                container.innerHTML += `
-                    <div class="item">
-                        <div class="item-left">
-                            <div class="coin-icon">${isSent ? '↗' : '↙'}</div>
-                            <div class="coin-info"><div>${isSent ? 'Sent' : 'Received'} Asset</div><div>Jan ${25-i}, 2026</div></div>
-                        </div>
-                        <div class="item-right">
-                            <div class="item-val ${isSent ? 'down' : 'up'}">${isSent ? '-' : '+'}$${(Math.random()*500).toFixed(2)}</div>
-                        </div>
-                    </div>`;
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            
+            // For learning/demo: validates against your provided credentials
+            if(email === "albertschneider183@gmail.com" && pass === "Family1997@") {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('main-ui').style.display = 'block';
+            } else {
+                alert("Incorrect credentials. Please check your email and password.");
             }
         }
+
+        function showSheet(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeSheets() { document.querySelectorAll('.sheet-overlay').forEach(s => s.style.display = 'none'); }
     </script>
 </body>
 </html>
