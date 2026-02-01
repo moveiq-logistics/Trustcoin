@@ -3,109 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trustcoin | Multi-Asset Wallet</title>
+    <title>Wallet | Professional Dashboard</title>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --accent: #238636; --text: #c9d1d9; --red: #f85149; --green: #3fb950; --border: #30363d; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 480px; }
+        :root { --bg: #ffffff; --text: #000000; --sub: #6e6e73; --border: #f2f2f7; --blue: #007aff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        /* Balance Header */
-        .balance-hero { background: linear-gradient(180deg, #1f2937 0%, #111827 100%); padding: 40px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .total-val { font-size: 2.5rem; font-weight: 800; }
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .balance-container { text-align: center; padding: 20px 0; }
+        .main-balance { font-size: 3rem; font-weight: 700; margin-bottom: 30px; }
 
-        /* Asset Cards */
-        .asset-list { margin-bottom: 25px; }
-        .asset-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Modal Styles */
-        #send-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--border); }
-        select, input { width: 100%; padding: 12px; margin: 10px 0; background: #010409; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; }
-        .btn-confirm { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* Action Buttons */
+        .actions { display: flex; justify-content: space-around; padding: 0 20px; margin-bottom: 30px; }
+        .action-item { text-align: center; cursor: pointer; }
+        .action-icon { width: 55px; height: 55px; background: #f2f2f7; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 8px; transition: 0.2s; }
+        .action-icon:hover { background: #e5e5ea; }
+        .action-label { font-size: 0.85rem; font-weight: 500; color: var(--sub); }
 
-        /* History */
-        .history-list { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
-        .tx-item { display: flex; justify-content: space-between; padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; margin-bottom: 10px; }
+        .tab { padding: 12px 15px; font-weight: 600; color: var(--sub); cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--text); border-bottom: 2px solid var(--text); }
+
+        /* Asset/History List */
+        .list-container { padding: 0 20px; }
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .item-left { display: flex; align-items: center; }
+        .coin-icon { width: 40px; height: 40px; border-radius: 50%; background: #eee; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .coin-info div:first-child { font-weight: 600; font-size: 1rem; }
+        .coin-info div:last-child { font-size: 0.85rem; color: var(--sub); }
+        .item-right { text-align: right; }
+        .item-val { font-weight: 600; }
+        .item-pct { font-size: 0.8rem; font-weight: 500; }
+        .up { color: #34c759; }
+        .down { color: #ff3b30; }
+
+        /* Send Modal */
+        #send-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; }
+        .modal-sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 25px; box-sizing: border-box; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--border); border-radius: 12px; background: #f9f9f9; font-size: 1rem; }
+        .btn-send { background: #000; color: #fff; width: 100%; padding: 18px; border-radius: 15px; font-weight: 700; border: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="balance-hero">
-            <div style="font-size: 0.8rem; opacity: 0.6;">TOTAL PORTFOLIO</div>
-            <div class="total-val" id="display-total">$1,700,000.00</div>
-        </div>
-
-        <button class="btn-confirm" style="margin-bottom: 20px;" onclick="openModal()">↑ Send Crypto</button>
-
-        <h3>Assets</h3>
-        <div class="asset-list">
-            <div class="asset-card"><span>Bitcoin (BTC)</span> <strong id="bal-btc">$1,000,000.00</strong></div>
-            <div class="asset-card"><span>Ethereum (ETH)</span> <strong id="bal-eth">$200,000.00</strong></div>
-            <div class="asset-card"><span>Tether (USDT)</span> <strong id="bal-usdt">$500,000.00</strong></div>
-            <div class="asset-card"><span>Solana (SOL)</span> <strong id="bal-sol">$125,000.00</strong></div>
-        </div>
-
-        <h3>Recent Activity (30)</h3>
-        <div class="history-list" id="tx-history"></div>
+    <div class="header">
+        <div style="font-weight: 700; font-size: 1.2rem;">Wallet</div>
+        <div style="font-size: 1.5rem;">⚙️</div>
     </div>
 
-    <div id="send-modal">
-        <div class="modal-content">
-            <h2 style="margin-top:0">Send Assets</h2>
-            <label>Select Asset</label>
-            <select id="asset-select">
+    <div class="balance-container">
+        <div class="main-balance" id="total-val">$1,825,000.00</div>
+    </div>
+
+    <div class="actions">
+        <div class="action-item"><div class="action-icon">↓</div><div class="action-label">Buy</div></div>
+        <div class="action-item"><div class="action-icon">⇄</div><div class="action-label">Trade</div></div>
+        <div class="action-item" onclick="toggleModal(true)"><div class="action-icon">↗</div><div class="action-label">Send</div></div>
+        <div class="action-item"><div class="action-icon">⇆</div><div class="action-label">Request</div></div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showSection('coins')">Coins</div>
+        <div class="tab" onclick="showSection('activity')">Activity</div>
+    </div>
+
+    <div class="list-container" id="content-list">
+        <div id="coins-section">
+            <div class="item">
+                <div class="item-left"><div class="coin-icon" style="background: #f7931a; color: white;">₿</div><div class="coin-info"><div>Bitcoin</div><div>BTC</div></div></div>
+                <div class="item-right"><div class="item-val" id="val-btc">$1,000,000.00</div><div class="item-pct up">+2.45%</div></div>
+            </div>
+            <div class="item">
+                <div class="item-left"><div class="coin-icon" style="background: #627eea; color: white;">Ξ</div><div class="coin-info"><div>Ethereum</div><div>ETH</div></div></div>
+                <div class="item-right"><div class="item-val" id="val-eth">$200,000.00</div><div class="item-pct up">+1.12%</div></div>
+            </div>
+            <div class="item">
+                <div class="item-left"><div class="coin-icon" style="background: #26a17b; color: white;">₮</div><div class="coin-info"><div>Tether</div><div>USDT</div></div></div>
+                <div class="item-right"><div class="item-val" id="val-usdt">$500,000.00</div><div class="item-pct">Stable</div></div>
+            </div>
+            <div class="item">
+                <div class="item-left"><div class="coin-icon" style="background: #14f195; color: black;">S</div><div class="coin-info"><div>Solana</div><div>SOL</div></div></div>
+                <div class="item-right"><div class="item-val" id="val-sol">$125,000.00</div><div class="item-pct down">-0.89%</div></div>
+            </div>
+        </div>
+        
+        <div id="activity-section" style="display:none;"></div>
+    </div>
+
+    <div id="send-modal" onclick="toggleModal(false)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <h3 style="margin-top:0">Send Crypto</h3>
+            <select id="asset-type">
                 <option value="btc">Bitcoin (BTC)</option>
                 <option value="eth">Ethereum (ETH)</option>
                 <option value="usdt">Tether (USDT)</option>
                 <option value="sol">Solana (SOL)</option>
             </select>
-            <label>Recipient Address</label>
-            <input type="text" placeholder="Paste wallet address...">
-            <label>Amount (USD)</label>
-            <input type="number" id="send-amount" placeholder="0.00">
-            <button class="btn-confirm" onclick="processSend()">Confirm Send</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:grey; width:100%; margin-top:10px; cursor:pointer;">Cancel</button>
+            <input type="text" placeholder="To: Wallet Address">
+            <input type="number" id="send-amt" placeholder="Amount in USD">
+            <button class="btn-send" onclick="confirmSend()">Send Now</button>
         </div>
     </div>
 
     <script>
         let balances = { btc: 1000000, eth: 200000, usdt: 500000, sol: 125000 };
 
-        function updateUI() {
-            document.getElementById('bal-btc').innerText = `$${balances.btc.toLocaleString()}`;
-            document.getElementById('bal-eth').innerText = `$${balances.eth.toLocaleString()}`;
-            document.getElementById('bal-usdt').innerText = `$${balances.usdt.toLocaleString()}`;
-            document.getElementById('bal-sol').innerText = `$${balances.sol.toLocaleString()}`;
-            const total = Object.values(balances).reduce((a, b) => a + b, 0);
-            document.getElementById('display-total').innerText = `$${total.toLocaleString()}.00`;
-        }
+        function toggleModal(show) { document.getElementById('send-modal').style.display = show ? 'flex' : 'none'; }
 
-        function openModal() { document.getElementById('send-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('send-modal').style.display = 'none'; }
-
-        function processSend() {
-            const asset = document.getElementById('asset-select').value;
-            const amount = parseFloat(document.getElementById('send-amount').value);
-            
-            if (amount > 0 && balances[asset] >= amount) {
-                balances[asset] -= amount;
-                updateUI();
-                alert(`Transaction Successful! Sent $${amount} from ${asset.toUpperCase()} wallet.`);
-                closeModal();
+        function confirmSend() {
+            const asset = document.getElementById('asset-type').value;
+            const amt = parseFloat(document.getElementById('send-amt').value);
+            if(amt > 0 && balances[asset] >= amt) {
+                balances[asset] -= amt;
+                document.getElementById(`val-${asset}`).innerText = `$${balances[asset].toLocaleString()}.00`;
+                const total = Object.values(balances).reduce((a, b) => a + b, 0);
+                document.getElementById('total-val').innerText = `$${total.toLocaleString()}.00`;
+                alert(`Successfully sent $${amt} ${asset.toUpperCase()}`);
+                toggleModal(false);
             } else {
-                alert("Insufficient balance or invalid amount.");
+                alert("Insufficient balance.");
             }
         }
 
-        // Generate 30 fake history items
-        const historyContainer = document.getElementById('tx-history');
-        for (let i = 0; i < 30; i++) {
-            historyContainer.innerHTML += `
-                <div class="tx-item">
-                    <span>${Math.random() > 0.5 ? 'Received' : 'Sent'} Asset<br><small>Oct ${30-i}, 2025</small></span>
-                    <span style="color:${Math.random() > 0.5 ? '#3fb950' : '#f85149'}">${(Math.random()*2).toFixed(4)} Coin</span>
-                </div>`;
+        function showSection(section) {
+            document.getElementById('coins-section').style.display = section === 'coins' ? 'block' : 'none';
+            document.getElementById('activity-section').style.display = section === 'activity' ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            if(section === 'activity') generateHistory();
+        }
+
+        function generateHistory() {
+            const container = document.getElementById('activity-section');
+            container.innerHTML = '';
+            for(let i=0; i<30; i++) {
+                const isSent = Math.random() > 0.5;
+                container.innerHTML += `
+                    <div class="item">
+                        <div class="item-left">
+                            <div class="coin-icon">${isSent ? '↗' : '↙'}</div>
+                            <div class="coin-info"><div>${isSent ? 'Sent' : 'Received'} Asset</div><div>Jan ${25-i}, 2026</div></div>
+                        </div>
+                        <div class="item-right">
+                            <div class="item-val ${isSent ? 'down' : 'up'}">${isSent ? '-' : '+'}$${(Math.random()*500).toFixed(2)}</div>
+                        </div>
+                    </div>`;
+            }
         }
     </script>
 </body>
